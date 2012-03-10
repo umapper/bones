@@ -66,6 +66,7 @@ Bones.utils.singularize.rules = [
     [ (/(bus)es$/i), "$1" ],
     [ (/(o)es$/i), "$1" ],
     [ (/(shoe)s$/i), "$1" ],
+    [ (/(video)s$/i), "$1" ],
     [ (/(cris|ax|test)es$/i), "$1is" ],
     [ (/(octop|vir)i$/i), "$1us" ],
     [ (/(alias|status)es$/i), "$1" ],
@@ -97,6 +98,7 @@ Bones.utils.pluralize = function(text) {
 Bones.utils.pluralize.rules = [
     [ (/$/), "s" ],
     [ (/(s|ss|sh|ch|x|o)$/i), "$1es" ],
+    [ (/(video)$/i), "$1s" ],
     [ (/y$/i), "ies" ],
     [ (/(o|e)y$/i), "$1ys" ],
     [ (/(octop|vir)us$/i), "$1i" ],

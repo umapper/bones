@@ -37,7 +37,10 @@ Backbone.csrf = function(path, timeout) {
 Backbone.sync = function(method, model, options) {
     function getUrl(object) {
         if (!(object && object.url)) throw new Error("A 'url' property or function must be specified");
-        return _.isFunction(object.url) ? object.url() : object.url;
+        var url =  _.isFunction(object.url) ? object.url() : object.url;
+	var d = url[0] == "/" ? "" :"/";
+//	console.log(Bones.config.hostname+":"+Bones.config.port+d+url);
+	return Bones.config.hostname+":"+Bones.config.port+d+url;
     };
 
     var type = {
@@ -56,6 +59,9 @@ Backbone.sync = function(method, model, options) {
     // Default JSON-request options.
     var params = {
         url:          getUrl(model),
+//	port:Bones.config.port,
+//	crossDomain:true,
+//	dataType:'jsonp',
         type:         type,
         contentType:  'application/json',
         data:         (modelJSON || null),
@@ -64,7 +70,6 @@ Backbone.sync = function(method, model, options) {
         success:      options.success,
         error:        options.error
     };
-
     // Make the request.
     return $.ajax(params);
 };

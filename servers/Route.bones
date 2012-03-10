@@ -1,5 +1,5 @@
 var env = process.env.NODE_ENV || 'development';
-var headers = { 'Content-Type': 'application/json' };
+var headers = { 'Content-Type': 'application/json',"Access-Control-Allow-Origin":"*" };
 
 server = Bones.Server.extend({});
 
@@ -8,7 +8,10 @@ var options = {
     wrapper: Bones.utils.wrapClientFile,
     sort: Bones.utils.sortByLoadOrder
 };
-
+function setHostname(content){
+    var cnt = content.replace("!@#$HOSTNAME$#@!",Bones.config.hostname);
+    return cnt.replace("!@#$PORT$#@!",Bones.config.port);
+}
 // TODO: This should be moved to the initialize method!
 server.prototype.assets = {
     vendor: new mirror([
@@ -20,8 +23,9 @@ server.prototype.assets = {
         require.resolve('bones/shared/utils'),
         require.resolve('bones/client/utils'),
         require.resolve('bones/shared/backbone'),
-        require.resolve('bones/client/backbone')
-    ], { type: '.js' }),
+        require.resolve('bones/client/backbone'),
+	require.resolve('bones/assets/transcode')
+    ], { type: '.js',filter:setHostname }),
     models: new mirror([], options),
     views: new mirror([], options),
     routers: new mirror([], options),
@@ -31,7 +35,7 @@ server.prototype.assets = {
 if (env === 'development') {
     server.prototype.assets.core.unshift(require.resolve('bones/assets/debug'));
 }
-
+//    server.prototype.assets.core.unshift(require.resolve('bones/assets/transcode'));
 // TODO: This should be moved to the initialize method!
 server.prototype.assets.all = new mirror([
     server.prototype.assets.vendor,
@@ -40,7 +44,7 @@ server.prototype.assets.all = new mirror([
     server.prototype.assets.models,
     server.prototype.assets.views,
     server.prototype.assets.templates
-], { type: '.js' });
+], { type: '.js',filter:setHostname });
 
 // Stores models, views served by this server.
 // TODO: This should be moved to the initialize method!
@@ -107,10 +111,12 @@ server.prototype.loadCollection = function(req, res, next) {
 };
 
 server.prototype.loadModel = function(req, res, next) {
+console.log('load!');
     var name = req.params.model;
     if (name in this.models) {
         // Pass any querystring paramaters to the model.
         req.model = new this.models[name]({ id: req.params.id }, req.query);
+	
     }
     next();
 };
@@ -132,7 +138,7 @@ server.prototype.saveModel = function(req, res, next) {
     if (!req.model) return next();
     req.model.save(req.body, {
         success: function(model, resp) {
-            res.send(resp, headers);
+            res.send({id:model.id}, headers);
         },
         error: function(model, err) {
             err = err instanceof Object ? err.toString() : err;

@@ -9,7 +9,8 @@ $(function() {
     var models = {}, views = {}, routers = {}, templates = {};
 
     Bones.server = false;
-
+    Bones.config = {hostname : "!@#$HOSTNAME$#@!",
+		    port : "!@#$PORT$#@!"};
     Bones.initialize = function(kind, callback) {
         if (kind === 'model') {
             var model = callback(models);
